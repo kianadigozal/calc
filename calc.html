@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماشین حساب</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Lato:wght@400;700&family=Poppins:wght@400;700&family=Montserrat:wght@400;700&family=Ubuntu:wght@400;700&family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .color-picker {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 50px;
+            height: 50px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .color-picker::-webkit-color-swatch {
+            border-radius: 8px;
+            border: 2px solid #ffffff;
+        }
+        .color-picker::-moz-color-swatch {
+            border-radius: 8px;
+            border: 2px solid #ffffff;
+        }
+        .font-select {
+            background: #374151;
+            color: white;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #4B5563;
+            width: 150px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center" id="calculator-body">
+    <div class="relative bg-gray-800 rounded-lg shadow-2xl p-4 w-72" id="calculator">
+        <div class="absolute -left-12 top-0">
+            <button onclick="toggleSettings()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg p-2 mb-2">
+                <i class="fas fa-cog text-xl"></i>
+            </button>
+        </div>
+        <div id="settings-panel" class="hidden absolute left-0 top-0 bg-gray-800 rounded-lg shadow-2xl p-4 w-72 -translate-x-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-white font-bold text-center flex-grow">تنظیمات</h3>
+                <button onclick="toggleSettings()" class="text-gray-300 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div class="mb-4">
+                    <label class="text-gray-300 block mb-2">انتخاب فونت:</label>
+                    <select class="font-select" onchange="changeFont(this.value)">
+                        <option value="Vazirmatn">وزیرمتن</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Open Sans">Open Sans</option>
+                        <option value="Lato">Lato</option>
+                        <option value="Poppins">Poppins</option>
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Ubuntu">Ubuntu</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-gray-300">پس‌زمینه اصلی:</label>
+                    <input type="color" class="color-picker" value="#1F2937" onchange="updateColor('calculator', this.value)">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-gray-300">پس‌زمینه نمایشگر:</label>
+                    <input type="color" class="color-picker" value="#111827" onchange="updateColor('display-bg', this.value)">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-gray-300">رنگ دکمه‌های عددی:</label>
+                    <input type="color" class="color-picker" value="#374151" onchange="updateColor('number-buttons', this.value)">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-gray-300">رنگ دکمه‌های عملیات:</label>
+                    <input type="color" class="color-picker" value="#374151" onchange="updateColor('operator-buttons', this.value)">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-gray-300">رنگ دکمه‌های حافظه:</label>
+                    <input type="color" class="color-picker" value="#374151" onchange="updateColor('memory-buttons', this.value)">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-gray-300">رنگ دکمه مساوی:</label>
+                    <input type="color" class="color-picker" value="#7C3AED" onchange="updateColor('equals-button', this.value)">
+                </div>
+                <div class="flex items-center justify-between">
+                    <label class="text-gray-300">رنگ متن:</label>
+                    <input type="color" class="color-picker" value="#FFFFFF" onchange="updateColor('text-color', this.value)">
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-6 gap-2 mb-2 text-xs">
+            <button onclick="memoryClear()" class="memory-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-1">MC</button>
+            <button onclick="memoryRecall()" class="memory-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-1">MR</button>
+            <button onclick="memoryAdd()" class="memory-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-1">M+</button>
+            <button onclick="memorySubtract()" class="memory-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-1">M-</button>
+            <button onclick="memoryStore()" class="memory-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-1">MS</button>
+            <button onclick="memoryShow()" class="memory-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-1">M∨</button>
+        </div>
+        <div class="bg-gray-900 p-4 mb-4 rounded">
+            <input type="text" id="display" class="w-full text-right text-4xl font-bold bg-transparent text-white outline-none" value="0">
+        </div>
+        <div class="grid grid-cols-4 gap-2">
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors" onclick="calculatePercentage()">%</button>
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors" onclick="clearEntry()">CE</button>
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors" onclick="clearDisplay()">C</button>
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors" onclick="backspace()">⌫</button>
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors">¹/x</button>
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors">x²</button>
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors">²√x</button>
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('/')">÷</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('7')">7</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('8')">8</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('9')">9</button>
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('*')">×</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('4')">4</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('5')">5</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('6')">6</button>
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('-')">-</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('1')">1</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('2')">2</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('3')">3</button>
+            <button class="operator-btn bg-gray-700 hover:bg-gray-600 text-gray-300 rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('+')">+</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('+/-')">±</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('0')">0</button>
+            <button class="number-btn bg-gray-700 hover:bg-gray-600 text-white rounded p-4 text-lg font-medium transition-colors" onclick="appendToDisplay('.')">.</button>
+            <button class="equals-btn bg-purple-600 hover:bg-purple-700 text-white rounded p-4 text-lg font-medium transition-colors" onclick="calculate()">=</button>
+        </div>
+        <div class="text-center mt-4 text-gray-400 text-sm">
+            سازنده: کیان آدیگوزل پور
+        </div>
+    </div>
+
+    <script>
+        let memory = 0;
+        let memoryHistory = [];
+
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function updateColor(element, color) {
+            const calculator = document.getElementById('calculator');
+            const display = document.querySelector('.bg-gray-900');
+            const numberButtons = document.querySelectorAll('.number-btn');
+            const operatorButtons = document.querySelectorAll('.operator-btn');
+            const memoryButtons = document.querySelectorAll('.memory-btn');
+            const equalsButton = document.querySelector('.equals-btn');
+            const textElements = document.querySelectorAll('.text-white, .text-gray-300');
+
+            switch(element) {
+                case 'calculator':
+                    calculator.style.backgroundColor = color;
+                    break;
+                case 'display-bg':
+                    display.style.backgroundColor = color;
+                    break;
+                case 'number-buttons':
+                    numberButtons.forEach(btn => {
+                        btn.style.backgroundColor = color;
+                        btn.style.borderColor = adjustBrightness(color, -20);
+                    });
+                    break;
+                case 'operator-buttons':
+                    operatorButtons.forEach(btn => {
+                        btn.style.backgroundColor = color;
+                        btn.style.borderColor = adjustBrightness(color, -20);
+                    });
+                    break;
+                case 'memory-buttons':
+                    memoryButtons.forEach(btn => {
+                        btn.style.backgroundColor = color;
+                        btn.style.borderColor = adjustBrightness(color, -20);
+                    });
+                    break;
+                case 'equals-button':
+                    equalsButton.style.backgroundColor = color;
+                    equalsButton.style.borderColor = adjustBrightness(color, -20);
+                    break;
+                case 'text-color':
+                    textElements.forEach(el => el.style.color = color);
+                    break;
+            }
+        }
+
+        function adjustBrightness(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+                (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+        }
+
+        function appendToDisplay(value) {
+            const display = document.getElementById('display');
+            if (display.value === '0' && value !== '.') {
+                display.value = value;
+            } else {
+                display.value += value;
+            }
+        }
+
+        function clearDisplay() {
+            document.getElementById('display').value = '0';
+        }
+
+        function calculate() {
+            try {
+                const display = document.getElementById('display');
+                display.value = eval(display.value);
+            } catch (error) {
+                document.getElementById('display').value = 'Error';
+            }
+        }
+
+        function memoryClear() {
+            memory = 0;
+            memoryHistory = [];
+            updateMemoryDisplay();
+        }
+
+        function memoryRecall() {
+            document.getElementById('display').value = memory;
+        }
+
+        function memoryAdd() {
+            const currentValue = parseFloat(document.getElementById('display').value);
+            memory += currentValue;
+            memoryHistory.push(`M+ ${currentValue}`);
+            updateMemoryDisplay();
+        }
+
+        function memorySubtract() {
+            const currentValue = parseFloat(document.getElementById('display').value);
+            memory -= currentValue;
+            memoryHistory.push(`M- ${currentValue}`);
+            updateMemoryDisplay();
+        }
+
+        function memoryStore() {
+            memory = parseFloat(document.getElementById('display').value);
+            memoryHistory.push(`MS ${memory}`);
+            updateMemoryDisplay();
+        }
+
+        function memoryShow() {
+            if (memoryHistory.length > 0) {
+                alert('Memory History:\n' + memoryHistory.join('\n'));
+            } else {
+                alert('Memory is empty');
+            }
+        }
+
+        function updateMemoryDisplay() {
+            const memoryButtons = document.querySelectorAll('.memory-btn');
+            memoryButtons.forEach(btn => {
+                btn.classList.toggle('opacity-50', memory === 0);
+            });
+        }
+
+        function changeFont(fontFamily) {
+            document.getElementById('calculator').style.fontFamily = fontFamily;
+        }
+
+        function backspace() {
+            const display = document.getElementById('display');
+            if (display.value.length > 1) {
+                display.value = display.value.slice(0, -1);
+            } else {
+                display.value = '0';
+            }
+        }
+
+        function clearEntry() {
+            document.getElementById('display').value = '0';
+        }
+
+        function calculatePercentage() {
+            const display = document.getElementById('display');
+            try {
+                display.value = parseFloat(display.value) / 100;
+            } catch (error) {
+                display.value = 'Error';
+            }
+        }
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            const display = document.getElementById('display');
+            if (
+                (key >= '0' && key <= '9') ||
+                key === '.' ||
+                key === '+' ||
+                key === '-' ||
+                key === '*' ||
+                key === '/' ||
+                key === 'Enter' ||
+                key === 'Backspace' ||
+                key === 'Escape'
+            ) {
+                event.preventDefault();
+            }
+            if ((key >= '0' && key <= '9') || key === '.') {
+                appendToDisplay(key);
+            } else if (['+', '-', '*', '/'].includes(key)) {
+                appendToDisplay(key);
+            } else if (key === 'Enter') {
+                calculate();
+            } else if (key === 'Backspace') {
+                backspace();
+            } else if (key === 'Escape') {
+                clearDisplay();
+            }
+        });
+        window.onload = function() {
+            changeFont('Vazirmatn');
+        };
+    </script>
+</body>
+</html>
